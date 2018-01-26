@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <title> Movie Earnings Data Visualization </title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"> </script>
+        <script type="text/javascript"> 
+google.charts.load('current', {packages: ['controls', 'table', 'corechart', 'bar' ]});
+google.charts.setOnLoadCallback(sendQuery);
+//The documentation implied that I did not need to load packages up here, but to avoid possibly making a mistake, I did it anyway. 
+function sendQuery() {
+    var query = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/1IMDe62xXlIXxNs9t3U9caLVRD0NwtU7AFNNhA_wZ888/gviz/tq?tq=');
+    query.send(handleQueryResponse);
+}
+            //The spreadsheet was slightly unclear about some information, so I ever so slightly modified it. The data itself is still from the original data set.  
+
+            //Error Handling for query response
+            function handleQueryResponse(response) {
+                if (response.isError()) {
+                    alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                    return;
+                }
+
+                //Creating of the datatable, based on correct response from error handling
+                var dataTable = response.getDataTable();
+
+
+                //Chart Wrapper For Table Chart
+                var TableChart = new google.visualization.ChartWrapper({
+                    chartType: 'Table',
+                    containerId: 'TableChart_div',
+                    'view': { 'columns': [1,2,3] },
+                    options: {
+                        "width": 900, "height": 200, 'title': 'Movie Earnings Table (In Millions)', },});
+                       
+
+                //Chart Wrapper For Pie Chart
+                var PieChart = new google.visualization.ChartWrapper({
+                    'chartType': 'PieChart',
+                    'containerId': 'PieChart_div',
+                    'view': { 'columns': [4,5] },
+                    options: { "width": 900, "height": 200, 'title': 'Total Movie Earnings Pie Chart By Category (In Millions)' }
+                });
+
+
+                //Chart Wrapper For Column Chart
+                var ColumnChart = new google.visualization.ChartWrapper({
+                    'chartType': 'ColumnChart',
+                    'containerId': 'ColumnChart_div',
+                    'view': { 'columns': [4,5] },
+                    options: {
+                        "width": 900, "height": 200, 'title': 'Total Movie Earnings Column Chart By Category (In Millions)',
+                        vAxis: { title: "Earnings" },
+                        hAxis: { title: "Movie Category", 'minTextSpacing' : "0" }
+                    }
+                    //When all of the filters are ON, the chart looks correct. Not sure why the bars stayed so smushed together. Maybe there is a formatting option?
+                });
+
+              
+
+                //Category Filter for Table
+                var TableSlider = new google.visualization.ControlWrapper({
+                    'width': 200,
+                    'height': 300,
+                    'controlType': 'CategoryFilter',
+                    'containerId': 'TableSlider_div',
+                    'options': {
+                        'filterColumnLabel': 'Type',
+                        'ui.sortValues': 'true'
+                    }
+                });
+
+
+
+                //Category Filter for Pie Chart
+                var PieSlider = new google.visualization.ControlWrapper({
+                    'width': 200,
+                    'height': 300,
+                    'controlType': 'CategoryFilter',
+                    'containerId': 'PieSlider_div',
+                    'options': {
+                        'filterColumnLabel': 'Combined Type',
+                        'ui.sortValues': 'true'
+                    }
+                });
+
+
+
+                //Category Filter for Column Chart
+                var ColumnSlider = new google.visualization.ControlWrapper({
+                    'width': 200,
+                    'height': 300,
+                    'controlType': 'CategoryFilter',
+                    'containerId': 'ColumnSlider_div',
+                    'options': {
+                        'filterColumnLabel': 'Combined Type',
+                        'ui.sortValues': 'true'
+                    }
+                });
+
+
+
+                var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
+                dashboard.bind(TableSlider, TableChart);
+                dashboard.bind(PieSlider, PieChart);
+                dashboard.bind(ColumnSlider, ColumnChart);
+                dashboard.draw(dataTable);
+                //I decided to bind the cooresponding controller to each chart individually. When I tried to do this in one call. I had some odd filtering issues. 
+            }
+
+    </script >
+</head >
+
+<body>
+        <h2> Movie Earnings Data Visualization </h2>
+        <div id = "dashboard_div">
+    <table>
+        <tr>
+            <td>
+                <div id="TableSlider_div" style= "width: 200px"> </div>
+                <br />
+                <div id="PieSlider_div" style= " width: 200px"> </div>
+                <br />
+                <div id="ColumnSlider_div" style= " width: 200px"> </div>
+            </td>
+            <td>
+                <div id="TableChart_div" style="height: 200px; width: 900px; border-style: groove;"> 
+                </div>
+
+                <div id="PieChart_div" style="height: 200px; width: 900px; border-style: groove;"> 
+                </div>
+
+                <div id="ColumnChart_div" style="height: 200px; width: 900px; border-style: groove;">
+                </div>
+            </td>
+        </tr>
+    </table>
+    </div>
+</body>
+</html >
+
+            
